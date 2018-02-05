@@ -115,14 +115,10 @@ void loop()
     }
     
      
-    secs_held = secs_held + firstTime;
-  
-      //millis_held = (millis() - firstTime);
-      Particle.publish("yolandayiyi", String(secs_held));
-            //secs_held = millis_held / 1000;//transfer milliseconds to seconds
-           // Particle.publish("yolandayiyi", String(secs_held));//publish counting seconds
-            delay(1000);// 1 second delay, without it, it seemed to only successfully send the first string before sleeping
-            Serial.println(secs_held);
+        secs_held = secs_held + firstTime;
+        Particle.publish("yolandayiyi", String(secs_held));
+        delay(1000);// 1 second delay, without it, it seemed to only successfully send the first string before sleeping
+        Serial.println(secs_held);
     // time stamp updated
     lastUpdate = millis();
   }

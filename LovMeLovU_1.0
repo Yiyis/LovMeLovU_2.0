@@ -1,0 +1,79 @@
+//this is the code for device1 which publishes events as 'Photon2' and subscribes to events from 'Photon1'
+int led1 = D4;
+int led2 = D5;
+int led3 = D6;
+int flexPin = A1;
+int motorPin = D2;
+long millis_held;
+long secs_held;
+unsigned long firstTime;
+boolean squeeze = false;
+
+
+void setup() {
+pinMode(led1, OUTPUT);
+pinMode(led2, OUTPUT);
+pinMode(led3, OUTPUT);
+pinMode(flexPin, INPUT);
+pinMode(motorPin, OUTPUT);
+Particle.subscribe("YiyiPhoton", eventData);
+}
+
+void loop() {
+    int flexsensor = analogRead(flexPin); 
+    if (flexsensor < 2000){
+        squeeze = true;
+        firstTime = millis();
+    }//only when sensor bend it start to counting time 
+    millis_held = (millis() - firstTime);
+    secs_held = millis_held / 1000;//transfer milliseconds to seconds
+    Particle.publish("YiyiPhoton", String(secs_held));//publish counting seconds
+    delay(1000);// 1 second delay, without it, it seemed to only successfully send the first string before sleeping
+    Serial.println(secs_held);
+    //Serial.println(flexsensor);
+    }
+
+    // this is the function that receives incoming data from the esubscribed event
+    //comparing seconds with the time we set
+void eventData(const char *name, const char *data) {
+    String newtime = String(data);
+    int value = newtime.toInt();
+    if (value>0 && value < 4){
+    digitalWrite(led1, HIGH);
+    analogWrite(motorPin, 0);
+    }
+    
+    else if (value>4 && value< 8){
+    digitalWrite(led1, HIGH);
+    digitalWrite(led2, HIGH);
+    analogWrite(motorPin, 0);
+    }
+
+    else if (value>8){
+    digitalWrite(led1, HIGH);
+    digitalWrite(led2, HIGH);
+    digitalWrite(led3, HIGH);
+    if(secs_held>8){
+    analogWrite(motorPin, 255);
+    }
+    else{
+    analogWrite(motorPin, 0);  
+    }//if both of pillows reach level 3, vibrator turn on
+    }
+    
+    else if (value<=0){
+    digitalWrite(led1, LOW);
+    digitalWrite(led2, LOW);
+    digitalWrite(led3, LOW);
+    analogWrite(motorPin, 0);
+    }   
+
+/*
+    delay(100);
+    digitalWrite(led1, LOW);
+    digitalWrite(led2, LOW);
+    digitalWrite(led3, LOW);
+    *///make led blink
+}
+
+
